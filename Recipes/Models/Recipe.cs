@@ -12,7 +12,7 @@
         public string Image { get; set; }
         public int KithenTypeId { get; set; }
         public int CategoryId { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; }
 
         public virtual ICollection<RecipeIngredients> RecipeIngredients { get; set; }
         public virtual ICollection<RecipeSteps> RecipeSteps { get; set; }
