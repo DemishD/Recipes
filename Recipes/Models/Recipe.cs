@@ -16,7 +16,7 @@
 
         public virtual ICollection<RecipeIngredients> RecipeIngredients { get; set; }
         public virtual ICollection<RecipeSteps> RecipeSteps { get; set; }
-        //public virtual User User { get; set; }
+        public virtual User User { get; set; }
         public virtual ICollection<Favorites> Favorites { get; set; }
         public virtual KitchenType KitchenType { get; set; }
         public virtual Category Category { get; set; }

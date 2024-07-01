@@ -1,49 +1,45 @@
-using Recipes.Models;
 using Microsoft.AspNetCore.Identity;
+using Recipes.Models;
 using System.Text.Json.Serialization;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddIdentity<User, IdentityRole>()
-.AddEntityFrameworkStores<RecipeContext>();
-
-// доб контекста бд Entity Framework в контейнер зависимостей
-builder.Services.AddDbContext<RecipeContext>();
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
-
-// Добавляем CORS для разрешения запросов с других источников
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
-    builder =>
-    {
-        builder.WithOrigins("http://localhost:3000")
-     .AllowAnyHeader()
-    .AllowAnyMethod();
-    });
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+        });
+});
+
+builder.Services.AddIdentity<User, IdentityRole>()
+.AddEntityFrameworkStores<RecipeContext>();
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 0;
 });
 
 
+builder.Services.AddDbContext<RecipeContext>();
+builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Настраиваем опции идентификации
-builder.Services.Configure<IdentityOptions>(options =>
-{
-    // Настройка блокировки пользователей
-    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    options.Lockout.MaxFailedAccessAttempts = 5;
-    options.Lockout.AllowedForNewUsers = true;
-});
 
-// Настраиваем куки аутентификации
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.Cookie.Name = "BookShop";
+    options.Cookie.Name = "PizzaDelivery";
     options.LoginPath = "/";
     options.AccessDeniedPath = "/";
     options.LogoutPath = "/";
@@ -52,7 +48,7 @@ builder.Services.ConfigureApplicationCookie(options =>
         context.Response.StatusCode = 401;
         return Task.CompletedTask;
     };
-    // Возвращать 401 при вызове недоступных методов для роли
+
     options.Events.OnRedirectToAccessDenied = context =>
     {
         context.Response.StatusCode = 401;
@@ -60,25 +56,35 @@ builder.Services.ConfigureApplicationCookie(options =>
     };
 });
 
-
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+});
 
 var app = builder.Build();
+/*using (var scope = app.Services.CreateScope())
+{
+    var pizzaContext = scope.ServiceProvider.GetRequiredService<PizzaContext>();
+    await ContextSeed.SeedAsync(pizzaContext);
+    await IdentitySeed.CreateUserRoles(scope.ServiceProvider);
+}*/
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
+
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
 
-app.UseCors();
-
-
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseCors();
 
 app.Run();

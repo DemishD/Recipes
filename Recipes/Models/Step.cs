@@ -6,6 +6,6 @@
         public int Number { get; set; }
         public string Description { get; set; }
         public string Image { get; set; }
-        public virtual ICollection<Recipe> Recipe { get; set; }
+        public virtual ICollection<RecipeSteps> RecipeSteps { get; set; }
     }
 }

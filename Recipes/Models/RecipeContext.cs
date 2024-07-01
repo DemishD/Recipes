@@ -13,7 +13,7 @@ namespace Recipes.Models
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            options.UseSqlServer(Configuration.GetConnectionString("RecipeCon"));
+            options.UseSqlServer(Configuration.GetConnectionString("RecipesCon"));
         }
 
         public virtual DbSet<User> Users { get; set; }
